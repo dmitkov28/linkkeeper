@@ -1,0 +1,8 @@
+{
+    "name": "linkkeeper",
+    "image": "golang:1.22.1-alpine",
+    "workspaceFolder": "/code",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/code,type=bind"
+    ]
+}
