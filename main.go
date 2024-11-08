@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,6 +27,7 @@ type model struct {
 	addInput     textinput.Model
 	bookmarks    list.Model
 	bookmarkView viewport.Model
+	spinner      spinner.Model
 	// err        error
 }
 
@@ -60,11 +62,15 @@ func initialModel() model {
 	bookmarkView := viewport.New(200, 200)
 	bookmarkView.SetContent("\n\nThis is the bookmark view")
 
+	sp := spinner.New()
+	sp.Spinner = spinner.Dot
+
 	return model{
 		mode:         ListView,
 		addInput:     ti,
 		bookmarks:    bookmarkList,
 		bookmarkView: bookmarkView,
+		spinner:      sp,
 	}
 }
 
