@@ -37,6 +37,13 @@ func (b bookmark) Title() string       { return b.url }
 func (b bookmark) Description() string { return "" }
 func (b bookmark) FilterValue() string { return b.url }
 
+var (
+	borderStyle = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		Padding(0, 1).
+		BorderForeground(lipgloss.Color("63"))
+)
+
 func initialModel() model {
 	ti := textinput.New()
 	ti.Placeholder = "Enter bookmark URL"
@@ -150,13 +157,13 @@ func (m model) View() string {
 	case AddMode:
 		return fmt.Sprintf(
 			"Add New Bookmark\n\n%s\n\nPress Enter to save, L to view list",
-			m.addInput.View(),
+			borderStyle.Render(m.addInput.View()),
 		)
 
 	case ListView:
 		return fmt.Sprintf(
 			"%s\n\nPress A to add new bookmark, Q to quit",
-			m.bookmarks.View(),
+			borderStyle.Render(m.bookmarks.View()),
 		)
 
 	case BookmarkView:
