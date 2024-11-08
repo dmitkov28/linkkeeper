@@ -11,7 +11,6 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/russross/blackfriday/v2"
 )
 
 type ViewMode int
@@ -82,6 +81,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -113,17 +113,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if m.mode == ListView {
-				selectedItem, ok := m.bookmarks.SelectedItem().(bookmark)
-				if ok {
-					markdown := fetchLink(selectedItem.url)
-
-					html := blackfriday.Run([]byte(markdown))
-
-					content := stripHTMLTags(string(html))
-					m.bookmarkView.SetContent(content + "\n\n" + selectedItem.url)
-				}
 				m.mode = BookmarkView
-				return m, nil
+				selectedItem, ok := m.bookmarks.SelectedItem().(bookmark)
+				m.spinner.Tick()
+				m.bookmarkView.SetContent(m.spinner.View() + "Fetching...")
+				if ok {
+					m.mode = BookmarkView
+					return m, fetchLinkCmd(selectedItem.url)
+				}
 			}
 
 		case "backspace":
@@ -132,6 +129,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		}
+	case FetchedBookmarkMsg:
+		m.bookmarkView.SetContent(msg.content)
 
 	case tea.WindowSizeMsg:
 		h, v := lipgloss.NewStyle().Margin(2, 2).GetFrameSize()
@@ -187,4 +186,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-

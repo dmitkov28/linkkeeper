@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/russross/blackfriday/v2"
 	"io"
 	"log"
 	"net/http"
 )
 
 func stripHTMLTags(input string) string {
-	// Simple and naive way of stripping HTML tags
-	// This could be improved for more complex cases
 	var result string
 	inTag := false
 	for _, c := range input {
@@ -43,3 +43,15 @@ func fetchLink(url string) string {
 	return string(res)
 }
 
+type FetchedBookmarkMsg struct {
+	content string
+}
+
+func fetchLinkCmd(url string) tea.Cmd {
+	return func() tea.Msg {
+		markdown := fetchLink(url)
+		html := blackfriday.Run([]byte(markdown))
+		content := stripHTMLTags(string(html))
+		return FetchedBookmarkMsg{content: content}
+	}
+}
