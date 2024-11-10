@@ -2,30 +2,14 @@ package main
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/russross/blackfriday/v2"
 	"io"
 	"log"
 	"net/http"
-)
 
-func stripHTMLTags(input string) string {
-	var result string
-	inTag := false
-	for _, c := range input {
-		switch c {
-		case '<':
-			inTag = true
-		case '>':
-			inTag = false
-		default:
-			if !inTag {
-				result += string(c)
-			}
-		}
-	}
-	return result
-}
+	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/russross/blackfriday/v2"
+)
 
 func fetchLink(url string) string {
 	const jinaAiUrl = "https://r.jina.ai"
@@ -51,7 +35,7 @@ func fetchLinkCmd(url string) tea.Cmd {
 	return func() tea.Msg {
 		markdown := fetchLink(url)
 		html := blackfriday.Run([]byte(markdown))
-		content := stripHTMLTags(string(html))
+		content, _ := htmltomarkdown.ConvertString(string(html))
 		return FetchedBookmarkMsg{content: content}
 	}
 }
