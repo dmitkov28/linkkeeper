@@ -8,6 +8,7 @@ import (
 
 	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/russross/blackfriday/v2"
 )
 
@@ -36,6 +37,7 @@ func fetchLinkCmd(url string) tea.Cmd {
 		markdown := fetchLink(url)
 		html := blackfriday.Run([]byte(markdown))
 		content, _ := htmltomarkdown.ConvertString(string(html))
-		return FetchedBookmarkMsg{content: content}
+		glamourContent, _ := glamour.Render(content, "dark")
+		return FetchedBookmarkMsg{content: glamourContent}
 	}
 }
