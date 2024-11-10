@@ -116,7 +116,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.mode = BookmarkView
 				selectedItem, ok := m.bookmarks.SelectedItem().(bookmark)
 				m.spinner.Tick()
-				m.bookmarkView.SetContent(m.spinner.View() + "Fetching...")
+				spinnerContent := m.spinner.View() + "Fetching..."
+				m.bookmarkView.SetContent(
+					spinnerContent,
+				)
 				if ok {
 					m.mode = BookmarkView
 					return m, fetchLinkCmd(selectedItem.url)
@@ -127,6 +130,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.mode == BookmarkView {
 				m.mode = ListView
 				return m, nil
+			}
+
+		case "up":
+			if m.mode == BookmarkView {
+				m.bookmarkView.LineUp(1)
+			}
+		case "down":
+			if m.mode == BookmarkView {
+				m.bookmarkView.LineDown(1)
 			}
 		}
 	case FetchedBookmarkMsg:
