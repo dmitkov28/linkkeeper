@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"linkkeeper/db"
 	"log"
 	"os"
 
@@ -27,6 +28,7 @@ type model struct {
 	bookmarks    list.Model
 	bookmarkView viewport.Model
 	spinner      spinner.Model
+	db           db.Database
 	// err        error
 }
 
@@ -51,18 +53,33 @@ func initialModel() model {
 	ti.CharLimit = 156
 	ti.Width = 50
 
+	bookmarkView := viewport.New(200, 200)
+
+	sp := spinner.New()
+	sp.Spinner = spinner.Dot
+
+	db, err := db.NewDB("./db.db")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	items := []list.Item{
 		bookmark{url: "https://example.com"},
 	}
 
+	bookmarks, err := db.ListBookmarks()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, bm := range bookmarks {
+		items = append(items, bookmark{url: bm.Url})
+	}
+
 	bookmarkList := list.New(items, list.NewDefaultDelegate(), 0, 0)
 	bookmarkList.Title = "Bookmarks"
-
-	bookmarkView := viewport.New(200, 200)
-	bookmarkView.SetContent("\n\nThis is the bookmark view")
-
-	sp := spinner.New()
-	sp.Spinner = spinner.Dot
 
 	return model{
 		mode:         ListView,
@@ -70,6 +87,7 @@ func initialModel() model {
 		bookmarks:    bookmarkList,
 		bookmarkView: bookmarkView,
 		spinner:      sp,
+		db:           *db,
 	}
 }
 
@@ -104,6 +122,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.mode == AddMode && m.addInput.Value() != "" {
 				newBookmark := bookmark{url: m.addInput.Value()}
+				err := m.db.CreateBookmark(newBookmark.url)
+				
+				if err != nil {
+					log.Fatal(err)
+				}
+
 				m.bookmarks.InsertItem(0, newBookmark)
 
 				m.addInput.SetValue("")
