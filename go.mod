@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.2.0
 	github.com/charmbracelet/glamour v0.8.0
 	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/russross/blackfriday/v2 v2.1.0
 )
 
